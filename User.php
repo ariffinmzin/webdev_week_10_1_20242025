@@ -104,12 +104,13 @@ class User
         }
     }
 
-    public function getCountStudent(){
+    public function getCountRole($role){
 
-        $sql = "SELECT count(*) AS total FROM users where role='student'";
+        $sql = "SELECT count(*) AS total FROM users where role=?";
         $stmt = $this->conn->prepare($sql);
-
+        
         if($stmt){
+            $stmt->bind_param("s", $role);
             $stmt->execute();
             $result = $stmt->get_result();
 
@@ -131,32 +132,80 @@ class User
 
     }
 
-    public function getCountLecturer(){
-
-        $sql = "SELECT count(*) AS total FROM users where role='lecturer'";
+    public function getRoleDistribution() {
+        $sql = "SELECT role, COUNT(*) as count FROM users 
+                GROUP BY role";
         $stmt = $this->conn->prepare($sql);
 
-        if($stmt){
+        if ($stmt) {
             $stmt->execute();
             $result = $stmt->get_result();
+            $roles = [];
 
-            if($result){
-
-                $row = $result->fetch_assoc();
-                return $row['total'];
+            while ($row = $result->fetch_assoc()) {
+                $roles[$row['role']] = $row['count'];
             }
-            else{
 
-                return 'Error: Unable to fetch result';
-            }
             $stmt->close();
+            return $roles;
+        } else {
+            return "Error: " . $this->conn->error;
         }
-        else{
-
-            return 'Error: ' . $this->conn->error;
-        }
-
     }
+
+    // public function getCountStudent(){
+
+    //     $sql = "SELECT count(*) AS total FROM users where role='student'";
+    //     $stmt = $this->conn->prepare($sql);
+
+    //     if($stmt){
+    //         $stmt->execute();
+    //         $result = $stmt->get_result();
+
+    //         if($result){
+
+    //             $row = $result->fetch_assoc();
+    //             return $row['total'];
+    //         }
+    //         else{
+
+    //             return 'Error: Unable to fetch result';
+    //         }
+    //         $stmt->close();
+    //     }
+    //     else{
+
+    //         return 'Error: ' . $this->conn->error;
+    //     }
+
+    // }
+
+    // public function getCountLecturer(){
+
+    //     $sql = "SELECT count(*) AS total FROM users where role='lecturer'";
+    //     $stmt = $this->conn->prepare($sql);
+
+    //     if($stmt){
+    //         $stmt->execute();
+    //         $result = $stmt->get_result();
+
+    //         if($result){
+
+    //             $row = $result->fetch_assoc();
+    //             return $row['total'];
+    //         }
+    //         else{
+
+    //             return 'Error: Unable to fetch result';
+    //         }
+    //         $stmt->close();
+    //     }
+    //     else{
+
+    //         return 'Error: ' . $this->conn->error;
+    //     }
+
+    // }
     
 
 }

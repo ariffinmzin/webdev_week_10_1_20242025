@@ -12,8 +12,17 @@
     $totalNumberOfSubjects = $subject->getCountSubject();
 
     $user = new User($db);
-    $totalNumberOfStudents = $user->getCountStudent();
-    $totalNumberOfLecturers = $user->getCountLecturer();
+    // $totalNumberOfStudents = $user->getCountStudent();
+    // $totalNumberOfLecturers = $user->getCountLecturer();
+    $totalNumberOfStudents = $user->getCountRole('student');
+    $totalNumberOfLecturers = $user->getCountRole('lecturer');
+    $roleDistribution = $user->getRoleDistribution();
+
+    $roles = json_encode(array_keys($roleDistribution));
+    $countRoles = json_encode(array_values($roleDistribution));
+
+    // echo $roles;
+    // echo $countRoles;
 
     $subjectRegistration = new SubjectRegistration($db);
     $gradeDistribution = $subjectRegistration->getGradeDistribution('BIC21203'); // Web Development subject code
@@ -96,6 +105,19 @@
                 </div>
             </div>
         </div>
+
+        <div class="row mt-4">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">Student/Lecturer Distribution</div>
+                    <div class="card-body">
+                        <div style="max-width: 400px; margin: auto;">
+                            <canvas id="rolePieChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
        
     </div>
 
@@ -105,8 +127,8 @@
         const grades = <?php echo $grades; ?>;
         const counts = <?php echo $counts; ?>;
 
-        const ctx = document.getElementById('gradeChart').getContext('2d');
-        new Chart(ctx, {
+        // const ctx = document.getElementById('gradeChart').getContext('2d');
+        new Chart('gradeChart', {
             type: 'bar',
             data: {
                 labels: grades, // X-axis labels (grades)
@@ -133,6 +155,36 @@
                 scales: {
                     y: {
                         beginAtZero: true
+                    }
+                }
+            }
+        });
+    </script>
+
+<script>
+        const roles = <?php echo $roles; ?>;
+        const countRoles = <?php echo $countRoles; ?>;
+        // Data for Chart.js
+        // const ctx = document.getElementById('rolePieChart').getContext('2d');
+        new Chart('rolePieChart', {
+            type: 'pie',
+            data: {
+                labels: roles, // Labels for pie chart
+                datasets: [{
+                    data: countRoles, // Data for each slice
+                    backgroundColor: ['#FF6384', '#36A2EB'], // Customize colors as needed
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top',
+                    },
+                    title: {
+                        display: true,
+                        text: 'Student/Lecturer Distribution'
                     }
                 }
             }
